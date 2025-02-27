@@ -1,0 +1,7 @@
+#Izmanto minimālu OS 
+FROM alpine:latest AS sh-img 
+ 
+# Instalē ShellCheck rīku 
+RUN apk add --no-cache \ 
+    shellcheck \ 
+    bash 

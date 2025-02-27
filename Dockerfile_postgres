@@ -1,0 +1,11 @@
+FROM postgres:latest AS ps-img
+
+# Datu bāzes uzstādīšanas parametri
+ENV POSTGRES_USER=superset_user
+ENV POSTGRES_PASSWORD=superset_pass
+ENV POSTGRES_DB=superset_db
+
+# init.sql satur datubāzes uzstādīšanas skriptu, kas izveidos tabulu pētījuma rezultātiem
+COPY init.sql /docker-entrypoint-initdb.d/
+
+EXPOSE 5432

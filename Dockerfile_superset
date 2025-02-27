@@ -1,0 +1,43 @@
+
+# Izmanto fiksētu versiju, jo nākotnes versijas varētu neatbalstīt esošo konfigurāciju drošības apsvērumu dēļ
+FROM apache/superset:4.1.1 AS superset-img
+
+# Superset uzstādīšanas parametri (tai skaitā piekļuves parametri Postgres datubāzei)
+ENV SUPERSET_ENV=development
+ENV SUPERSET_LOAD_EXAMPLES="no"
+ENV SUPERSET_ADMIN_USERNAME=admin
+ENV SUPERSET_ADMIN_PASSWORD=admin
+ENV SUPERSET_ADMIN_FIRST_NAME=Admin
+ENV SUPERSET_ADMIN_LAST_NAME=User
+ENV SUPERSET_ADMIN_EMAIL=admin@example.com
+ENV SUPERSET_DATABASE_HOST=postgres
+ENV SUPERSET_DATABASE_PORT=5432
+ENV SUPERSET_DATABASE_USER=superset_user
+ENV SUPERSET_DATABASE_PASSWORD=superset_pass
+ENV SUPERSET_DATABASE_DB=superset_db
+ENV SUPERSET_SECRET_KEY=superset_key
+
+# RUN komandas izpilda kā root lietotājs 
+USER root
+
+RUN apt-get update && \
+    # Nepieciešams psycopg2 instalēšanai
+    apt-get -y install libpq-dev gcc && \
+    # Nepieciešms Superset uzstādīšanai 
+    pip install --no-cache-dir Pillow && \
+    # Nepieciešams savienojuma izveidei ar Postgres datubāzi 
+    pip install --no-cache-dir psycopg2	&& \
+    # Izveido Superset nepieciešamās datubāzes tabulas
+    superset db upgrade && \
+    # Superset uzstādīšana
+    superset init && \
+    # Izveido superset administratora kontu (ar kuru varēs autorizēties, lai veiktu darbu)
+    superset fab create-admin \
+        --username "${SUPERSET_ADMIN_USERNAME}" \
+        --password "${SUPERSET_ADMIN_PASSWORD}" \
+        --firstname "${SUPERSET_ADMIN_FIRST_NAME}" \
+        --lastname "${SUPERSET_ADMIN_LAST_NAME}" \
+        --email "${SUPERSET_ADMIN_EMAIL}"
+
+# Pēc uzstādīšanas pieejams localhost:8088
+EXPOSE 8088

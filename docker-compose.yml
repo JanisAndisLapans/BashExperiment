@@ -1,0 +1,39 @@
+services:
+  shellcheck:
+    container_name: shellcheck
+    build:
+      context: .
+      dockerfile: Dockerfile_shellcheck
+    image: sh-img
+    tty: true
+  postgres:
+    container_name: postgres_db
+    build:
+      context: .
+      dockerfile: Dockerfile_postgres
+    image: ps-img
+    ports:
+      - "5432:5432"
+    tty: true
+    volumes:
+      - pg_data_experiment:/var/lib/postgresql/data
+  superset:
+    container_name: superset
+    build:
+      context: .
+      dockerfile: Dockerfile_superset
+    image: superset-img 
+    depends_on:
+      - postgres
+    ports:
+      - "8088:8088"
+    tty: true
+    volumes:
+      - superset_data_experiment:/var/lib/superset/data
+
+volumes:
+  pg_data_experiment: 
+  superset_data_experiment:
+ 
+
+

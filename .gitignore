@@ -1,0 +1,15 @@
+# Ignore API keys directory
+apiKeys
+
+# Ignore Python cache files
+__pycache__
+
+# Ignore VM disk directory
+debian
+
+# Ignore downloaded isos
+iso
+
+# Ignore generated scripts
+scripts/*
+!scripts/correct_*
