@@ -1,0 +1,1 @@
+find /usr/results -name result.log | xargs grep -l FAIL | wc -l
