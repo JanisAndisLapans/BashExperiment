@@ -1,0 +1,1 @@
+awk '{print "result =",$0}' <(rev info.txt)
