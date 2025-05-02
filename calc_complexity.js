@@ -4,10 +4,9 @@ var path = require('path');
 function calculateCognitiveComplexity(node, level = 1, isFirstChild = true) {
     /**
      * Recursively calculates cognitive complexity based on the provided rules:
-     * 1. + (level - 1) when the first subnode at a level appears.
+     * 1. + (level - 1) when the first subnode at a level appears or for each step in a pipeline.
      * 2. + 0.3 for every command node.
-     * 3. + 0.05 for every suffix node (e.g., arguments, options).
-     * 4. + 0.02 for every character in awk expressions
+     * 3. + 0.02 for every character in awk expressions
      *
      * Args:
      *     node: A node from bash-parser
@@ -28,10 +27,6 @@ function calculateCognitiveComplexity(node, level = 1, isFirstChild = true) {
     if (node.type === 'Command') {
         score += 0.3;
 
-        if (node.suffix) {
-            score += 0.05 * node.suffix.length;
-        }
-
         if (node.name?.text === 'awk') {
             for (const suffix of node.suffix) {
                 if (suffix.type === 'Word' && !suffix.text.includes('-')) {
@@ -41,16 +36,24 @@ function calculateCognitiveComplexity(node, level = 1, isFirstChild = true) {
             }
         }
     }
+
+    if (node.type === 'Pipeline' && node.commands) {
+        depth = node.commands.length-1;
+        progressionSum = depth/2*(level+depth);
+        score += progressionSum;
+    }
     // Collect children nodes
     const children = [];
-
 
     switch (node.type) {
       case 'Script':
           if (node.commands) children.push(...node.commands);
           break;
       case 'Pipeline':
-          if (node.commands) children.push(...node.commands);
+          if (node.commands) {
+            children.push(...node.commands);
+            score -= level; // Since pipelines are already counted separately, offset by level that will be added in the next recursion
+          }
           break;
       case 'LogicalExpression':
           if (node.left) children.push(node.left);
