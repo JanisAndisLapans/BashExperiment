@@ -29,7 +29,7 @@ function calculateCognitiveComplexity(node, level = 1, isFirstChild = true) {
 
         if (node.name?.text === 'awk') {
             for (const suffix of node.suffix) {
-                if (suffix.type === 'Word' && !suffix.text.includes('-')) {
+                if (suffix.type === 'Word' && !suffix.text.startsWith('-')) {
                     score += 0.02 * suffix.text.length;
                     break;
                 }
